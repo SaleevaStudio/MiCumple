@@ -25,30 +25,53 @@
     background: radial-gradient(circle, #d5252419 2px, transparent 2.5px) 0 0 / 28px 28px, #fff2d9;
   }
   h1, h2, p, figure { margin: 0; }
-  .masthead {
-    background: var(--black);
-    color: var(--cream);
-    border-bottom: 5px solid var(--yellow);
+  .album-title { display: flex; align-items: center; gap: 11px; }
+  .party-nav { display: flex; justify-content: center; padding: 14px 0 0; }
+  .balloon-cluster {
+    position: fixed;
+    top: clamp(100px, 24vh, 230px);
+    left: max(8px, calc(50% - 640px));
+    width: 87px;
+    height: 145px;
+    pointer-events: none;
   }
-  .masthead-inner {
-    width: min(100% - 36px, 1050px);
-    min-height: 68px;
-    margin: auto;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
+  .balloon-cluster.right {
+    right: max(8px, calc(50% - 640px));
+    left: auto;
+    top: clamp(160px, 36vh, 320px);
+    transform: scaleX(-1);
   }
-  .brand, .album-title {
-    display: flex;
-    align-items: center;
-    gap: 11px;
+  .balloon {
+    position: absolute;
+    width: 38px;
+    height: 48px;
+    border: 2px solid var(--black);
+    border-radius: 50% 50% 47% 47%;
+    background: radial-gradient(ellipse at 28% 23%, #ffffff9e 0 9%, transparent 11%), var(--balloon-color);
+    transform: rotate(var(--tilt));
   }
-  .brand {
-    min-width: 0;
-    font: 850 clamp(.94rem, 3.3vw, 1.18rem)/1.1 var(--display);
+  .balloon::before {
+    content: "";
+    position: absolute;
+    top: calc(100% - 1px);
+    left: calc(50% - 4px);
+    border: solid transparent;
+    border-width: 0 4px 6px;
+    border-bottom-color: var(--black);
   }
-  .brand .mouse { color: var(--yellow); }
+  .balloon::after {
+    content: "";
+    position: absolute;
+    top: calc(100% + 5px);
+    left: 50%;
+    width: 9px;
+    height: 49px;
+    border-left: 1px solid #554038;
+    border-radius: 50%;
+  }
+  .balloon:nth-child(1) { top: 23px; left: 0; --balloon-color: var(--red); --tilt: -18deg; }
+  .balloon:nth-child(2) { top: 0; left: 23px; --balloon-color: var(--yellow); --tilt: -5deg; }
+  .balloon:nth-child(3) { top: 24px; left: 49px; --balloon-color: var(--black); --tilt: 18deg; }
   .mouse {
     display: inline-block;
     flex: none;
@@ -222,8 +245,29 @@
   .viewer-bar .close { background: var(--red); border-color: var(--red); color: white; }
   .viewer-stage { margin: 10px auto; text-align: center; }
   .viewer-stage img, .viewer-stage video { display: block; max-width: 100%; max-height: 64dvh; margin: auto; object-fit: contain; }
+  .access-hint { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+  .access-hint[hidden] { display: none; }
+  .access-link { min-height: 34px; padding: 4px 8px; background: var(--cream); color: var(--black); font-size: .8rem; }
+  #inviteDialog { width: min(100% - 24px, 460px); background: var(--cream); color: var(--black); }
+  #inviteForm { display: grid; gap: 10px; padding: 7px; }
+  #inviteForm label { font-weight: 730; }
+  #inviteForm input { width: 100%; min-height: 45px; padding: 8px; border: 2px solid var(--black); border-radius: 9px; font: inherit; }
+  #inviteForm .status { margin: 0; }
+  @media (max-width: 1250px) {
+    .balloon-cluster, .balloon-cluster.right {
+      position: absolute;
+      top: 3px;
+      left: max(14px, calc(50% - 190px));
+      width: 87px;
+      height: 50px;
+      transform: scale(.42);
+      transform-origin: top left;
+    }
+    .balloon-cluster.right { right: max(14px, calc(50% - 190px)); left: auto; transform: scale(.42); transform-origin: top right; }
+    .party-nav { position: relative; }
+  }
   @media (max-width: 700px) {
-    .masthead-inner { width: calc(100% - 24px); min-height: 58px; }
+    .party-nav { padding-top: 8px; }
     main { width: min(100% - 22px, 510px); padding: 12px 0 21px; }
     .hero { grid-template-columns: 1fr; border-radius: 18px; }
     .photo-panel { border-right: 0; border-bottom: 2px solid var(--black); padding: 10px 14px 15px 10px; }
@@ -242,12 +286,11 @@
 </style>
 </head>
 <body>
-<header class="masthead">
-  <div class="masthead-inner">
-    <div class="brand"><span class="mouse" aria-hidden="true"></span><span>Fiesta con Mickey Mouse</span></div>
-    <button class="jump" id="jumpGallery" type="button">Ver galería</button>
-  </div>
-</header>
+<nav class="party-nav" aria-label="Navegación del álbum">
+  <div class="balloon-cluster" aria-hidden="true"><i class="balloon"></i><i class="balloon"></i><i class="balloon"></i></div>
+  <button class="jump" id="jumpGallery" type="button">Ver galería</button>
+  <div class="balloon-cluster right" aria-hidden="true"><i class="balloon"></i><i class="balloon"></i><i class="balloon"></i></div>
+</nav>
 <main>
   <section class="hero" aria-labelledby="title">
     <div class="photo-panel">
@@ -267,6 +310,10 @@
       <ul class="previews" id="previews" aria-label="Archivos seleccionados"></ul>
       <div class="actions"><button class="primary wide" id="sendFiles" type="button" disabled>Enviar</button></div>
       <p class="hint">Puedes seleccionar varios archivos. Los vídeos pueden pesar hasta 48 MB cada uno.</p>
+      <div id="accessHint" class="hint access-hint" hidden>
+        <span>El envío y la galería requieren el enlace de invitación.</span>
+        <button class="access-link" id="openInvite" type="button">Pegar enlace</button>
+      </div>
       <p class="status" id="sendStatus" role="status" aria-live="polite"></p>
     </div>
   </section>
@@ -298,11 +345,24 @@
   <p class="status" id="downloadStatus" role="status" style="color:#fff;text-align:center"></p>
 </dialog>
 
+<dialog id="inviteDialog" aria-labelledby="inviteTitle">
+  <form id="inviteForm">
+    <h2 id="inviteTitle">Acceso al álbum</h2>
+    <label for="inviteInput">Pega el enlace que recibiste de la fiesta</label>
+    <input type="url" id="inviteInput" placeholder="https://…" required autocomplete="off" autocapitalize="off" spellcheck="false">
+    <p class="status" id="inviteStatus" role="status"></p>
+    <div class="actions">
+      <button type="button" class="secondary" id="closeInvite">Cancelar</button>
+      <button type="submit" class="primary" id="applyInvite">Abrir álbum</button>
+    </div>
+  </form>
+</dialog>
+
 <script>
 'use strict';
 
 const WORKER_URL = 'https://boda-fotos.marlenandrade13.workers.dev';
-const invite = new URLSearchParams(location.hash.slice(1)).get('acceso') || '';
+let invite = new URLSearchParams(location.hash.slice(1)).get('acceso') || '';
 const get = (id) => document.getElementById(id);
 const maxVideoBytes = 48 * 1024 * 1024;
 const videoExtensions = /\.(mp4|m4v|mov|webm)$/i;
@@ -312,6 +372,16 @@ let refreshing = false;
 let gallery = [];
 let viewerItems = [];
 let activeIndex = 0;
+let sendAfterInvite = false;
+
+function idForUpload() {
+  if (typeof crypto.randomUUID === 'function') return crypto.randomUUID();
+  const bytes = crypto.getRandomValues(new Uint8Array(16));
+  bytes[6] = (bytes[6] & 15) | 64;
+  bytes[8] = (bytes[8] & 63) | 128;
+  const hex = Array.from(bytes, (byte) => byte.toString(16).padStart(2, '0')).join('');
+  return [hex.slice(0, 8), hex.slice(8, 12), hex.slice(12, 16), hex.slice(16, 20), hex.slice(20)].join('-');
+}
 
 function status(id, message, error = false) {
   const node = get(id);
@@ -339,7 +409,7 @@ function media(source, video, viewer = false) {
 }
 
 function syncControls() {
-  get('sendFiles').disabled = sending || !selected.length || !invite;
+  get('sendFiles').disabled = sending || !selected.length;
   ['takePhoto','takeVideo','selectFiles'].forEach((id) => { get(id).disabled = sending; });
   get('previews').querySelectorAll('button').forEach((button) => { button.disabled = sending; });
 }
@@ -376,7 +446,7 @@ for (const [button, input] of [['takePhoto','photoInput'],['takeVideo','videoInp
         continue;
       }
       if (selected.some(({file: item}) => item.name === file.name && item.size === file.size && item.lastModified === file.lastModified)) continue;
-      selected.push({file, video, url: URL.createObjectURL(file), id: crypto.randomUUID()});
+      selected.push({file, video, url: URL.createObjectURL(file), id: idForUpload()});
     }
     target.value = '';
     renderPreviews();
@@ -391,6 +461,10 @@ async function api(path, options = {}) {
     cache: 'no-store'
   });
   const data = await response.json().catch(() => ({}));
+  if (response.status === 401) {
+    invite = '';
+    syncAccess();
+  }
   if (!response.ok) throw new Error(data.error || 'No se pudo conectar con el álbum.');
   return data;
 }
@@ -399,8 +473,11 @@ async function preparePhoto(file) {
   const decoded = new Image();
   const url = URL.createObjectURL(file);
   try {
-    decoded.src = url;
-    await decoded.decode();
+    await new Promise((resolve, reject) => {
+      decoded.onload = resolve;
+      decoded.onerror = reject;
+      decoded.src = url;
+    });
     const scale = Math.min(2048 / Math.max(decoded.naturalWidth, decoded.naturalHeight), 1);
     const canvas = document.createElement('canvas');
     canvas.width = Math.max(1, Math.round(decoded.naturalWidth * scale));
@@ -420,7 +497,11 @@ async function preparePhoto(file) {
 }
 
 get('sendFiles').onclick = async () => {
-  if (sending || !selected.length || !invite) return;
+  if (sending || !selected.length) return;
+  if (!invite) {
+    showInvite(true);
+    return;
+  }
   sending = true;
   syncControls();
   const total = selected.length;
@@ -539,19 +620,49 @@ async function refreshGallery() {
     status('galleryStatus', error.message, true);
   } finally {
     refreshing = false;
-    get('refresh').disabled = false;
+    get('refresh').disabled = !invite;
   }
 }
 
 get('jumpGallery').onclick = () => get('galeria').scrollIntoView({block: 'start'});
 get('refresh').onclick = refreshGallery;
-if (invite) {
-  void refreshGallery();
-  setInterval(() => { if (!document.hidden) void refreshGallery(); }, 20000);
-} else {
-  get('refresh').disabled = true;
-  status('galleryStatus', 'Abre el enlace de invitación completo para enviar archivos y ver la galería.');
+function syncAccess() {
+  get('accessHint').hidden = Boolean(invite);
+  get('refresh').disabled = !invite;
+  if (!invite) status('galleryStatus', 'Abre el enlace de invitación completo para ver las fotos de la fiesta.');
 }
+
+function showInvite(resumeSend = false) {
+  sendAfterInvite = resumeSend;
+  get('inviteInput').value = '';
+  get('applyInvite').textContent = resumeSend ? 'Abrir y enviar' : 'Abrir álbum';
+  status('inviteStatus', '');
+  get('inviteDialog').showModal();
+  get('inviteInput').focus();
+}
+
+get('openInvite').onclick = () => showInvite();
+get('closeInvite').onclick = () => get('inviteDialog').close();
+get('inviteForm').onsubmit = (event) => {
+  event.preventDefault();
+  let link;
+  try { link = new URL(get('inviteInput').value.trim()); } catch { /* permite mostrar un mensaje claro */ }
+  const key = link && new URLSearchParams(link.hash.slice(1)).get('acceso');
+  if (!link || link.origin !== location.origin || !key) {
+    status('inviteStatus', 'Pega el enlace completo de este álbum, incluido el acceso de invitación.', true);
+    return;
+  }
+  invite = key;
+  history.replaceState(null, '', location.pathname + location.search + '#acceso=' + encodeURIComponent(invite));
+  get('inviteInput').value = '';
+  get('inviteDialog').close();
+  syncAccess();
+  if (sendAfterInvite) get('sendFiles').click();
+  else void refreshGallery();
+};
+syncAccess();
+if (invite) void refreshGallery();
+setInterval(() => { if (!document.hidden) void refreshGallery(); }, 20000);
 </script>
 </body>
 </html>
